@@ -437,9 +437,11 @@ You probably need to add additional commands to Fire below.
 """
 
 
-def generate_all_qa_pairs():
+def generate_all_qa_pairs(
+    split: str="train"
+):
 
-    data_path = Path(__file__).parent.parent / "data/train"
+    data_path = Path(__file__).parent.parent / f"data/{split}"
     qa_data = list()
 
     info_files = list(data_path.glob("*_info.json"))
@@ -448,7 +450,7 @@ def generate_all_qa_pairs():
             qa = generate_qa_pairs(str(info_file), i)
             qa_data += qa
 
-    with open(data_path / "train_qa_pairs.json", "w") as f:
+    with open(data_path / f"{split}_qa_pairs.json", "w") as f:
         json.dump(qa_data, f)
     
 
