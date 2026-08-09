@@ -269,7 +269,7 @@ def generate_qa_pairs(info_path: str, view_index: int, img_width: int = 150, img
 
     center_kart_gen = filter(lambda x: x["is_center_kart"], kart_metadata)
     center_kart = list(center_kart_gen)[0]
-    center_kart_x, _ = center_kart["center"]
+    center_kart_x, center_kart_y = center_kart["center"]
     center_kart_forward_score = center_kart["forward_score"]
 
     # 1. Ego car question
@@ -310,8 +310,8 @@ def generate_qa_pairs(info_path: str, view_index: int, img_width: int = 150, img
             continue
 
         kart_name = kart_obj["kart_name"]
-        kart_x, _ = kart_obj["center"]
-        kart_forward_score = kart_obj["forward_score"]
+        kart_x, kart_y = kart_obj["center"]
+     
 
         if kart_x < center_kart_x:
             answer_4 = "left"
@@ -325,7 +325,7 @@ def generate_qa_pairs(info_path: str, view_index: int, img_width: int = 150, img
             "answer": answer_4
         }
 
-        if kart_forward_score > center_kart_forward_score:
+        if kart_y > center_kart_y:
             answer_5 = "back"
             back_of_ego += 1
 
