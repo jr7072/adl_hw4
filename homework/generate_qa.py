@@ -270,7 +270,6 @@ def generate_qa_pairs(info_path: str, view_index: int, img_width: int = 150, img
     center_kart_gen = filter(lambda x: x["is_center_kart"], kart_metadata)
     center_kart = list(center_kart_gen)[0]
     center_kart_x, center_kart_y = center_kart["center"]
-    center_kart_forward_score = center_kart["forward_score"]
 
     # 1. Ego car question
     # What kart is the ego car?
