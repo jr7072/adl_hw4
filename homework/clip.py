@@ -233,9 +233,10 @@ def compute_clip_loss(
 
     logits = (image_embed @ text_embed.T) * torch.exp(logit_scale)
     labels = torch.arange(logits.size(0)).to(logits.device)
-    loss = torch.nn.functional.cross_entropy(logits, labels)
+    loss_i = torch.nn.functional.cross_entropy(logits, labels)
+    loss_t = torch.nn.functional.cross_entropy(logits.T, labels)
 
-    return loss
+    return (loss_i + loss_t) / 2
 
 def get_target_modules_for_lora(model: nn.Module) -> list[str]:
     target_modules = []
@@ -260,6 +261,7 @@ def train(
     learning_rate: float = 5e-4,
     num_workers: int = 16,
 ):
+    
     vlm = BaseVLM()
 
     output_dir = Path(__file__).parent / output_dir
