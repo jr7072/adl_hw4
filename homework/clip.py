@@ -192,13 +192,15 @@ class CLIP(nn.Module):
         """
 
         image_hidden_state = self.encode_image(pixel_values)["last_hidden_state"]
-        text_hidden_state = self.encode_text(input_ids, attention_mask)["last_hidden_state"]
+        text_hidden_state = self.encode_text(input_ids, attention_mask)["last_hidden_state"] * attention_mask
         encoded_image = torch.mean(image_hidden_state, dim=1)
         encoded_text = torch.mean(text_hidden_state, dim=1)
 
         # need to add some pooling here on the middle dimension
         image_embedding = self.image_proj(encoded_image)
         text_embedding = self.text_proj(encoded_text)
+
+        
 
         image_normalized = torch.nn.functional.normalize(image_embedding,
                                                             p=2,
