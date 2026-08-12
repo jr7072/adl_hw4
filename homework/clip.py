@@ -197,10 +197,19 @@ class CLIP(nn.Module):
         encoded_text = torch.mean(text_hidden_state, dim=1)
 
         # need to add some pooling here on the middle dimension
-        image_embedding = torch.norm(self.image_proj(encoded_image))
-        text_embedding = torch.norm(self.text_proj(encoded_text))
+        image_embedding = self.image_proj(encoded_image)
+        text_embedding = self.text_proj(encoded_text)
 
-        return image_embedding, text_embedding, self.temperature
+        image_normalized = torch.nn.functional.normalize(image_embedding,
+                                                            p=2,
+                                                            dim=1
+                                                        )
+        
+        text_normalized = torch.nn.functional.normalize(text_embedding,
+                                                            p=2,
+                                                            dim=1)
+
+        return image_normalized, text_normalized, self.temperature
 
 
 def compute_clip_loss(
