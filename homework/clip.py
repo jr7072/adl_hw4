@@ -113,7 +113,7 @@ class CLIP(nn.Module):
                                         proj_dim
                                     )
 
-        self.temperature = nn.Parameter(torch.tensor(torch.log(1 / temperature)))
+        self.temperature = nn.Parameter(torch.log(torch.tensor(1 / temperature)))
 
     def encode_image(self, image: torch.Tensor) -> torch.Tensor:
         return self.vision_encoder(image)
