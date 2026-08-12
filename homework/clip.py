@@ -222,7 +222,7 @@ def compute_clip_loss(
 
     image_embed, text_embed, logit_scale = outputs
 
-    logits = image_embed.dot(text_embed.T) * torch.exp(logit_scale)
+    logits = (image_embed @ text_embed.T) * torch.exp(logit_scale)
     labels = torch.arange(logits.size(0))
     loss = torch.nn.functional.cross_entropy(logits, labels)
 
