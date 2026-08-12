@@ -117,8 +117,8 @@ class CLIP(nn.Module):
     def encode_image(self, image: torch.Tensor) -> torch.Tensor:
         return self.vision_encoder(image)
 
-    def encode_text(self, text: str) -> torch.Tensor:
-        return self.text_encoder(text)
+    def encode_text(self, text: str, attn_mask: torch.Tensor) -> torch.Tensor:
+        return self.text_encoder(text, attention_mask=attn_mask)
 
     def save_pretrained(self, save_directory: str, **kwargs):
         """Customize save method, save additional parameters"""
@@ -192,7 +192,7 @@ class CLIP(nn.Module):
         """
 
         image_hidden_state = self.encode_image(pixel_values)["last_hidden_state"]
-        text_hidden_state = self.encode_text(input_ids)["last_hidden_state"]
+        text_hidden_state = self.encode_text(input_ids, attention_mask)["last_hidden_state"]
         encoded_image = torch.mean(image_hidden_state, dim=1)
         encoded_text = torch.mean(text_hidden_state, dim=1)
 
