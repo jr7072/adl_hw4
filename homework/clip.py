@@ -193,9 +193,10 @@ class CLIP(nn.Module):
 
         image_hidden_state = self.encode_image(pixel_values)["last_hidden_state"]
 
-        attention_mask_expanded = attention_mask.unsqueeze(-1).expand(image_hidden_state.size()) 
-        text_hidden_state = self.encode_text(input_ids, attention_mask)["last_hidden_state"] * attention_mask_expanded
-
+        
+        text_hidden_state = self.encode_text(input_ids, attention_mask)["last_hidden_state"] 
+        attention_mask_expanded = attention_mask.unsqueeze(-1).expand(text_hidden_state.size()) 
+        text_hidden_state *= attention_mask_expanded
 
         encoded_image = torch.mean(image_hidden_state, dim=1)
         encoded_text = torch.mean(text_hidden_state, dim=1)
