@@ -205,8 +205,6 @@ class CLIP(nn.Module):
         image_embedding = self.image_proj(encoded_image)
         text_embedding = self.text_proj(encoded_text)
 
-        
-
         image_normalized = torch.nn.functional.normalize(image_embedding,
                                                             p=2,
                                                             dim=1
@@ -288,8 +286,8 @@ def train(
     peft_config = LoraConfig(
         task_type=TaskType.FEATURE_EXTRACTION,
         inference_mode=False,
-        r=16,
-        lora_alpha=64,
+        r=32,
+        lora_alpha=128,
         lora_dropout=0.0,
         # target_modules="all-linear",
         target_modules=get_target_modules_for_lora(model),
