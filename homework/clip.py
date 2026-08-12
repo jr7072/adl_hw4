@@ -194,14 +194,15 @@ class CLIP(nn.Module):
 
         image_hidden_state = self.encode_image(pixel_values)["last_hidden_state"]
         
-        text_hidden_state = self.encode_text(input_ids, attention_mask)["last_hidden_state"]
+        text_hidden_state = self.encode_text(input_ids, attention_mask)["last_hidden_state"] 
+        attention_mask_expanded = attention_mask.unsqueeze(-1).expand(text_hidden_state.size()) 
+        text_hidden_state *= attention_mask_expanded
 
         encoded_image = torch.mean(image_hidden_state, dim=1)
-        encoded_text = torch.mean(text_hidden_state, dim=1)
     
-        # encoded_text_sum = text_hidden_state.sum(dim=1)
-        # attn_mask_sum = attention_mask_expanded.sum(dim=1).clamp(min=1e-9)
-        # encoded_text = (encoded_text_sum / attn_mask_sum).to(encoded_text_sum.dtype)
+        encoded_text_sum = text_hidden_state.sum(dim=1)
+        attn_mask_sum = attention_mask_expanded.sum(dim=1).clamp(min=1e-9)
+        encoded_text = (encoded_text_sum / attn_mask_sum).to(encoded_text_sum.dtype)
 
         # need to add some pooling here on the middle dimension
         image_embedding = self.image_proj(encoded_image)
