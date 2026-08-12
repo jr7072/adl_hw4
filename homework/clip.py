@@ -200,8 +200,8 @@ class CLIP(nn.Module):
 
         encoded_image = torch.mean(image_hidden_state, dim=1)
     
-        encoded_text_sum = torch.sum(text_hidden_state, dim=1)
-        attn_mask_sum = torch.sum(attention_mask, dim=-1).clamp(min=1e-9)
+        encoded_text_sum = text_hidden_state.sum(dim=1)
+        attn_mask_sum = attention_mask_expanded.sum(dim=1).clamp(min=1e-9)
         encoded_text = encoded_text_sum / attn_mask_sum
 
         # need to add some pooling here on the middle dimension
