@@ -101,8 +101,18 @@ class CLIP(nn.Module):
         super().__init__()
         self.vision_encoder = vision_encoder
         self.text_encoder = text_encoder
+
         # TODO: implement the rest components
-        raise NotImplementedError("Not implemented")
+        self.text_proj = nn.Linear(
+                                        self.text_encoder.config.hidden_size,
+                                        proj_dim
+                                   )
+        self.image_proj = nn.Linear(
+                                        self.vision_encoder.config.hidden_size,
+                                        proj_dim
+                                    )
+
+        self.temperature = nn.Parameter(torch.tensor(temperature))
 
     def encode_image(self, image: torch.Tensor) -> torch.Tensor:
         return self.vision_encoder(image)
@@ -180,7 +190,15 @@ class CLIP(nn.Module):
         Returns:
             TODO: think about the what values should be returned
         """
-        raise NotImplementedError("Not implemented")
+
+        encoded_image = torch.mean(self.encode_image(pixel_values), dim=1)
+        encoded_text = torch.mean(self.encode_text(input_ids), dim=1)
+
+        # need to add some pooling here on the middle dimension
+        image_embedding = torch.norm(self.image_proj(encoded_image))
+        text_embedding = torch.norm(self.text_proj(encoded_text))
+
+        return image_embedding, text_embedding, self.temperature
 
 
 def compute_clip_loss(
@@ -199,8 +217,14 @@ def compute_clip_loss(
     Returns:
         The loss for the CLIP model.
     """
-    raise NotImplementedError("Not implemented")
 
+    image_embed, text_embed, logit_scale = outputs
+
+    logits = image_embed.dot(text_embed.T) * torch.exp(logit_scale)
+    labels = torch.arange(logits.size(0))
+    loss = torch.nn.functional.cross_entropy(logits, labels)
+
+    return loss
 
 def get_target_modules_for_lora(model: nn.Module) -> list[str]:
     target_modules = []
@@ -218,7 +242,7 @@ def get_target_modules_for_lora(model: nn.Module) -> list[str]:
 
 def train(
     data_dir: Path | None = None,
-    output_dir: str = "clip",
+    output_dir: str = "clip_model",
     num_train_epochs: float = 0.05,  # for debugging purpose, increase this once the dry run works
     per_device_train_batch_size: int = 1024,
     gradient_accumulation_steps: int = 1,
