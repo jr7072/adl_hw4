@@ -99,6 +99,7 @@ class CLIP(nn.Module):
         self, vision_encoder: nn.Module, text_encoder: nn.Module, proj_dim: int = 64, temperature: float = 0.07
     ):
         super().__init__()
+        
         self.vision_encoder = vision_encoder
         self.text_encoder = text_encoder
 
@@ -112,7 +113,7 @@ class CLIP(nn.Module):
                                         proj_dim
                                     )
 
-        self.temperature = nn.Parameter(torch.tensor(temperature))
+        self.temperature = nn.Parameter(torch.log(1 / temperature))
 
     def encode_image(self, image: torch.Tensor) -> torch.Tensor:
         return self.vision_encoder(image)
@@ -192,7 +193,6 @@ class CLIP(nn.Module):
         """
 
         image_hidden_state = self.encode_image(pixel_values)["last_hidden_state"]
-
         
         text_hidden_state = self.encode_text(input_ids, attention_mask)["last_hidden_state"] 
         attention_mask_expanded = attention_mask.unsqueeze(-1).expand(text_hidden_state.size()) 
