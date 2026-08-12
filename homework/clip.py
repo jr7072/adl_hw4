@@ -202,7 +202,7 @@ class CLIP(nn.Module):
     
         encoded_text_sum = text_hidden_state.sum(dim=1)
         attn_mask_sum = attention_mask_expanded.sum(dim=1).clamp(min=1e-9)
-        encoded_text = encoded_text_sum / attn_mask_sum
+        encoded_text = (encoded_text_sum / attn_mask_sum).to(encoded_text_sum.dtype)
 
         # need to add some pooling here on the middle dimension
         image_embedding = self.image_proj(encoded_image)
